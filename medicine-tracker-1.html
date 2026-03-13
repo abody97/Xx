@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>متتبع العلاجات</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0e1a; --surface:#111827; --card:#1a2235; --border:#1e2d45;
+  --accent:#00d4aa; --accent2:#0099ff; --text:#e8f0fe; --muted:#6b7a99;
+  --warn:#ffd166; --danger:#ff6b6b;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Tajawal',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,170,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,170,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+.wrap{max-width:860px;margin:0 auto;padding:24px 16px;position:relative;z-index:1}
+.header{text-align:center;margin-bottom:32px}
+.header-icon{width:64px;height:64px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px;box-shadow:0 0 40px rgba(0,212,170,.3)}
+h1{font-size:2rem;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px}
+.subtitle{color:var(--muted);font-size:.95rem}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px}
+.card-title{font-size:1.1rem;font-weight:700;color:var(--accent);margin-bottom:18px}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:560px){.fg,.vg{grid-template-columns:1fr!important}}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.field input,.field select{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-family:'Tajawal',sans-serif;font-size:.95rem;transition:border-color .2s;width:100%}
+.field input:focus,.field select:focus{outline:none;border-color:var(--accent)}
+.field input[type=color]{height:44px;padding:4px 8px;cursor:pointer}
+.days{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.db{width:38px;height:38px;border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:.75rem;font-family:'Tajawal',sans-serif;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.db.on{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700}
+.btn-add{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:12px;border:none;cursor:pointer;font-family:'Tajawal',sans-serif;font-size:1rem;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;width:100%;margin-top:16px;transition:all .2s}
+.btn-add:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,212,170,.3)}
+.vg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.sf{display:flex;flex-direction:column;gap:6px}
+.sl{display:flex;justify-content:space-between;font-size:.8rem;color:var(--muted);font-weight:600;text-transform:uppercase}
+input[type=range]{-webkit-appearance:none;width:100%;height:4px;background:var(--border);border-radius:2px;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:var(--accent);border-radius:50%;cursor:pointer}
+.bsm{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:10px;border:1px solid;cursor:pointer;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:600;background:transparent;transition:all .2s}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.sb{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center}
+.sn{font-size:1.8rem;font-weight:900;line-height:1;margin-bottom:4px}
+.sl2{font-size:.75rem;color:var(--muted);font-weight:600}
+.nd{background:linear-gradient(135deg,rgba(0,212,170,.1),rgba(0,153,255,.05));border:1px solid rgba(0,212,170,.2);border-radius:14px;padding:16px 20px;display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.nd-info{flex:1;min-width:120px}
+.nd-label{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:2px}
+.nd-name{font-size:1.1rem;font-weight:800;color:var(--accent)}
+.nd-cd{font-size:1.8rem;font-weight:900;font-variant-numeric:tabular-nums;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.ml{display:flex;flex-direction:column;gap:12px}
+.mi{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;display:flex;align-items:center;gap:14px;transition:all .2s}
+.mi.taken{opacity:.45}
+.mi.taken .mn{text-decoration:line-through}
+.mc{width:14px;height:14px;border-radius:50%;flex-shrink:0}
+.minfo{flex:1}
+.mn{font-size:1rem;font-weight:700;margin-bottom:3px}
+.mm{font-size:.8rem;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap}
+.mt{font-size:1.2rem;font-weight:900;font-variant-numeric:tabular-nums;min-width:60px;text-align:center}
+.ma{display:flex;gap:8px}
+.bi{width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all .2s}
+.bi:hover{background:var(--border);color:var(--text)}
+.bi.ck{background:rgba(0,212,170,.2);color:var(--accent);border-color:var(--accent)}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,212,170,.5)}50%{box-shadow:0 0 0 8px rgba(0,212,170,0)}}
+.nxt{animation:pulse 2s infinite;border-color:rgba(0,212,170,.4)!important}
+.empty{text-align:center;padding:40px;color:var(--muted)}
+#toasts{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:10px;width:90%;max-width:400px}
+.toast{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,.4);animation:tin .3s ease}
+.toast.al{border-color:var(--accent);background:linear-gradient(135deg,rgba(0,212,170,.15),var(--card))}
+@keyframes tin{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:translateY(0)}}
+.tmsg{flex:1;font-weight:600;font-size:.9rem}
+.tx{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;padding:0 2px}
+#vbanner{background:linear-gradient(135deg,rgba(255,209,102,.12),rgba(0,212,170,.08));border:1px solid rgba(255,209,102,.3);border-radius:14px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .2s}
+#vbanner:hover{border-color:rgba(255,209,102,.6)}
+#vbanner.hide{display:none}
+</style>
+</head>
+<body>
+
+<div id="toasts"></div>
+
+<div class="wrap">
+
+  <!-- Voice unlock banner -->
+  <div id="vbanner" onclick="unlockAudio()">
+    <div style="font-size:2rem">🔊</div>
+    <div style="flex:1">
+      <div style="font-weight:700;margin-bottom:3px">اضغط هنا أولاً لتفعيل الصوت</div>
+      <div style="font-size:.8rem;color:var(--muted)">المتصفح يحتاج موافقتك — ضغطة واحدة فقط</div>
+    </div>
+    <div style="font-size:1.5rem;color:var(--warn)">👆</div>
+  </div>
+
+  <div class="header">
+    <div class="header-icon">💊</div>
+    <h1>متتبع العلاجات</h1>
+    <p class="subtitle">تنبيهات صوتية · <span id="clock"></span></p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="sb"><div class="sn" id="st" style="color:var(--accent2)">0</div><div class="sl2">إجمالي</div></div>
+    <div class="sb"><div class="sn" id="sk" style="color:var(--accent)">0</div><div class="sl2">تم أخذها</div></div>
+    <div class="sb"><div class="sn" id="sl" style="color:var(--warn)">0</div><div class="sl2">متبقية</div></div>
+  </div>
+
+  <!-- Next dose -->
+  <div class="nd">
+    <div style="font-size:2rem">⏰</div>
+    <div class="nd-info">
+      <div class="nd-label">الجرعة القادمة</div>
+      <div class="nd-name" id="nn">أضف دواءً أولاً</div>
+    </div>
+    <div class="nd-cd" id="nc">--:--:--</div>
+  </div>
+
+  <!-- Add medicine -->
+  <div class="card">
+    <div class="card-title">➕ إضافة دواء</div>
+    <div class="fg">
+      <div class="field"><label>اسم الدواء</label><input id="fn" type="text" placeholder="فيتامين د"></div>
+      <div class="field"><label>وقت التنبيه</label><input id="ft" type="time" value="17:00"></div>
+      <div class="field"><label>الجرعة</label><input id="fd" type="text" placeholder="حبة واحدة"></div>
+      <div class="field"><label>اللون</label><input id="fc" type="color" value="#00d4aa"></div>
+    </div>
+    <div class="field" style="margin-top:14px">
+      <label>أيام التكرار</label>
+      <div class="days">
+        <button class="db on" data-d="0">أح</button>
+        <button class="db on" data-d="1">إث</button>
+        <button class="db on" data-d="2">ثل</button>
+        <button class="db on" data-d="3">أر</button>
+        <button class="db on" data-d="4">خم</button>
+        <button class="db on" data-d="5">جم</button>
+        <button class="db on" data-d="6">سب</button>
+      </div>
+    </div>
+    <button class="btn-add" onclick="addMed()">✚ إضافة الدواء</button>
+  </div>
+
+  <!-- Voice settings -->
+  <div class="card">
+    <div class="card-title">🔊 إعدادات الصوت</div>
+    <div class="vg">
+      <div class="sf">
+        <div class="sl"><span>السرعة</span><span id="rl">0.9</span></div>
+        <input type="range" id="vr" min="0.5" max="2" step="0.1" value="0.9" oninput="document.getElementById('rl').textContent=parseFloat(this.value).toFixed(1)">
+      </div>
+      <div class="sf">
+        <div class="sl"><span>الحجم</span><span id="vl">1.0</span></div>
+        <input type="range" id="vv" min="0" max="1" step="0.1" value="1.0" oninput="document.getElementById('vl').textContent=parseFloat(this.value).toFixed(1)">
+      </div>
+      <div class="sf">
+        <div class="sl"><span>الطبقة</span><span id="pl">1.1</span></div>
+        <input type="range" id="vp" min="0.5" max="2" step="0.1" value="1.1" oninput="document.getElementById('pl').textContent=parseFloat(this.value).toFixed(1)">
+      </div>
+    </div>
+    <div class="field" style="margin-top:14px">
+      <label>الصوت</label>
+      <select id="vs"><option>جاري التحميل...</option></select>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+      <button class="bsm" style="border-color:var(--accent);color:var(--accent)" onclick="testVoice()">🔊 اختبار الصوت</button>
+      <button class="bsm" style="border-color:var(--warn);color:var(--warn)" onclick="reqNotif()" id="nb">🔔 تفعيل الإشعارات</button>
+    </div>
+  </div>
+
+  <!-- Medicine list -->
+  <div class="card">
+    <div class="card-title">📋 قائمة الأدوية</div>
+    <div class="ml" id="ml">
+      <div class="empty"><div style="font-size:3rem;margin-bottom:12px">💊</div><div>لم تضف أي دواء بعد</div></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── State ──────────────────────────────────────
+let meds    = JSON.parse(localStorage.getItem('meds')    || '[]');
+let taken   = JSON.parse(localStorage.getItem('taken')   || '{}');
+let alerted = JSON.parse(localStorage.getItem('alerted') || '{}');
+let voices  = [];
+let unlocked = false;
+
+const todayKey = new Date().toDateString();
+if (localStorage.getItem('day') !== todayKey) {
+  taken = {}; alerted = {};
+  localStorage.setItem('taken','{}');
+  localStorage.setItem('alerted','{}');
+  localStorage.setItem('day', todayKey);
+}
+
+// ── Speech ──────────────────────────────────────
+const SS = (typeof window !== 'undefined' && 'speechSynthesis' in window) ? window.speechSynthesis : null;
+
+function loadVoices() {
+  if (!SS) return;
+  const v = SS.getVoices();
+  if (!v.length) return;
+  voices = v;
+  const sel = document.getElementById('vs');
+  sel.innerHTML = '';
+  voices.forEach((vo,i) => {
+    const o = document.createElement('option');
+    o.value = i;
+    o.textContent = (vo.lang.startsWith('ar') ? '⭐ ' : '') + vo.name + ' (' + vo.lang + ')';
+    sel.appendChild(o);
+  });
+  const ar = voices.findIndex(vo => vo.lang.startsWith('ar'));
+  if (ar >= 0) sel.value = ar;
+}
+
+if (SS) {
+  SS.onvoiceschanged = loadVoices;
+  setTimeout(loadVoices, 200);
+  setTimeout(loadVoices, 1000);
+}
+
+function unlockAudio() {
+  if (!SS) { toast('⚠️','الصوت غير مدعوم في هذا المتصفح'); return; }
+  try {
+    const u = new SpeechSynthesisUtterance(' ');
+    u.volume = 0;
+    SS.speak(u);
+    unlocked = true;
+    document.getElementById('vbanner').classList.add('hide');
+    setTimeout(() => speak('تم تفعيل الصوت بنجاح'), 300);
+  } catch(e) {
+    toast('❌','خطأ في تفعيل الصوت');
+  }
+}
+
+function speak(text) {
+  if (!SS) return;
+  try {
+    SS.cancel();
+    if (!voices.length) voices = SS.getVoices();
+    const u = new SpeechSynthesisUtterance(text);
+    const idx = parseInt(document.getElementById('vs').value) || 0;
+    if (voices[idx]) u.voice = voices[idx];
+    u.rate   = parseFloat(document.getElementById('vr').value) || 0.9;
+    u.volume = parseFloat(document.getElementById('vv').value) || 1.0;
+    u.pitch  = parseFloat(document.getElementById('vp').value) || 1.1;
+    u.lang   = 'ar-SA';
+    const hk = setInterval(() => {
+      if (!SS.speaking) { clearInterval(hk); return; }
+      SS.pause(); SS.resume();
+    }, 12000);
+    u.onend = u.onerror = () => clearInterval(hk);
+    SS.speak(u);
+  } catch(e) { console.warn(e); }
+}
+
+function testVoice() {
+  if (!unlocked) { unlockAudio(); return; }
+  const name = document.getElementById('fn').value.trim() || 'فيتامين د';
+  speak('حان وقت تناول ' + name);
+}
+
+async function reqNotif() {
+  if (!('Notification' in window)) { toast('❌','غير مدعوم'); return; }
+  const p = await Notification.requestPermission();
+  const b = document.getElementById('nb');
+  if (p === 'granted') {
+    b.style.borderColor = 'var(--accent)'; b.style.color = 'var(--accent)';
+    b.textContent = '✅ الإشعارات مفعّلة';
+    toast('✅','تم تفعيل الإشعارات');
+  } else { toast('⚠️','لم يُسمح بالإشعارات'); }
+}
+
+// ── Day buttons ──────────────────────────────────
+document.querySelectorAll('.db').forEach(b =>
+  b.addEventListener('click', () => b.classList.toggle('on'))
+);
+
+// ── Save ─────────────────────────────────────────
+function save() {
+  localStorage.setItem('meds',    JSON.stringify(meds));
+  localStorage.setItem('taken',   JSON.stringify(taken));
+  localStorage.setItem('alerted', JSON.stringify(alerted));
+}
+
+// ── Add ──────────────────────────────────────────
+function addMed() {
+  const name  = document.getElementById('fn').value.trim();
+  const time  = document.getElementById('ft').value;
+  const dose  = document.getElementById('fd').value.trim() || 'جرعة واحدة';
+  const color = document.getElementById('fc').value;
+  const days  = [...document.querySelectorAll('.db.on')].map(b => +b.dataset.d);
+  if (!name)        { toast('⚠️','أدخل اسم الدواء'); return; }
+  if (!time)        { toast('⚠️','اختر الوقت'); return; }
+  if (!days.length) { toast('⚠️','اختر يوماً واحداً على الأقل'); return; }
+  meds.push({ id: Date.now(), name, time, dose, color, days });
+  save(); render();
+  toast('✅','تم إضافة ' + name);
+  document.getElementById('fn').value = '';
+  document.getElementById('fd').value = '';
+}
+
+function delMed(id) {
+  meds = meds.filter(m => m.id !== id);
+  delete taken[id]; save(); render();
+  toast('🗑️','تم الحذف');
+}
+
+function toggleTaken(id) {
+  taken[id] = !taken[id]; save(); render();
+}
+
+// ── Alert ─────────────────────────────────────────
+function fireAlert(med) {
+  speak('حان وقت تناول ' + med.name);
+  toast('💊','حان وقت ' + med.name + ' · ' + med.dose, true);
+  if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+    try { new Notification('💊 ' + med.name, { body: med.dose }); } catch(e){}
+  }
+}
+
+// ── Render ────────────────────────────────────────
+function fmt(t) {
+  const [h,m] = t.split(':').map(Number);
+  return (h%12||12)+':'+String(m).padStart(2,'0')+(h<12?' ص':' م');
+}
+
+function render() {
+  const list = document.getElementById('ml');
+  if (!meds.length) {
+    list.innerHTML = '<div class="empty"><div style="font-size:3rem;margin-bottom:12px">💊</div><div>لم تضف أي دواء بعد</div></div>';
+    updateStats(); nextDose(); return;
+  }
+  const sorted = [...meds].sort((a,b) => a.time.localeCompare(b.time));
+  const dn = ['أح','إث','ثل','أر','خم','جم','سب'];
+  list.innerHTML = sorted.map(m => {
+    const tk = !!taken[m.id];
+    const ds = m.days.length===7 ? 'يومياً' : m.days.map(d=>dn[d]).join(' · ');
+    const sn = m.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return `<div class="mi${tk?' taken':''}" id="mi${m.id}">
+      <div class="mc" style="background:${m.color};box-shadow:0 0 8px ${m.color}66"></div>
+      <div class="minfo">
+        <div class="mn">${m.name}</div>
+        <div class="mm"><span>💊 ${m.dose}</span><span>📅 ${ds}</span></div>
+      </div>
+      <div class="mt" style="color:${m.color}">${fmt(m.time)}</div>
+      <div class="ma">
+        <button class="bi" onclick="if(!unlocked)unlockAudio();else speak('حان وقت تناول ${sn}')">🔊</button>
+        <button class="bi${tk?' ck':''}" onclick="toggleTaken(${m.id})">${tk?'✅':'○'}</button>
+        <button class="bi" style="color:var(--danger)" onclick="delMed(${m.id})">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+  updateStats(); nextDose(sorted);
+}
+
+function updateStats() {
+  const tot = meds.length;
+  const tk  = Object.values(taken).filter(Boolean).length;
+  document.getElementById('st').textContent = tot;
+  document.getElementById('sk').textContent = tk;
+  document.getElementById('sl').textContent = Math.max(0, tot-tk);
+}
+
+function nextDose(sorted) {
+  const s = sorted || [...meds].sort((a,b)=>a.time.localeCompare(b.time));
+  if (!s.length) { document.getElementById('nn').textContent='أضف دواءً أولاً'; document.getElementById('nc').textContent='--:--:--'; return; }
+  const now = new Date(), nm = now.getHours()*60+now.getMinutes(), day = now.getDay();
+  let next=null, best=Infinity;
+  s.forEach(m => {
+    if (taken[m.id] || !m.days.includes(day)) return;
+    const [h,mn] = m.time.split(':').map(Number);
+    let d = h*60+mn-nm; if(d<0) d+=1440;
+    if(d<best){best=d;next=m;}
+  });
+  document.querySelectorAll('.mi').forEach(e=>e.classList.remove('nxt'));
+  if (!next) { document.getElementById('nn').textContent='🎉 تم أخذ كل الأدوية'; document.getElementById('nc').textContent='✓'; return; }
+  document.getElementById('nn').textContent = next.name;
+  const el = document.getElementById('mi'+next.id);
+  if (el) el.classList.add('nxt');
+}
+
+// ── Tick (countdown + alert) ──────────────────────
+function tick() {
+  const now = new Date(), day=now.getDay(), H=now.getHours(), M=now.getMinutes(), S=now.getSeconds();
+  const nowT = H*3600+M*60+S;
+  let next=null, best=Infinity;
+  meds.forEach(m => {
+    if (taken[m.id] || !m.days.includes(day)) return;
+    const [h,mn] = m.time.split(':').map(Number);
+    const t = h*3600+mn*60;
+    let d = t-nowT; if(d<0) d+=86400;
+    if(d<best){best=d;next=m;}
+    if (h===H && mn===M && S<8) {
+      const key = m.id+'-'+todayKey+'-'+m.time;
+      if (!alerted[key]) { alerted[key]=true; localStorage.setItem('alerted',JSON.stringify(alerted)); fireAlert(m); }
+    }
+  });
+  if (next && best<86400) {
+    const hh=Math.floor(best/3600), mm=Math.floor((best%3600)/60), ss=best%60;
+    document.getElementById('nc').textContent = String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0');
+  }
+}
+
+setInterval(() => {
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}, 1000);
+
+setInterval(tick, 1000);
+
+// ── Toast ──────────────────────────────────────────
+function toast(icon, msg, al=false) {
+  const d = document.getElementById('toasts');
+  const t = document.createElement('div');
+  t.className = 'toast'+(al?' al':'');
+  t.innerHTML = `<span style="font-size:1.3rem">${icon}</span><span class="tmsg">${msg}</span><button class="tx" onclick="this.parentElement.remove()">×</button>`;
+  d.appendChild(t);
+  setTimeout(()=>{ if(t.parentElement) t.remove(); }, 5500);
+}
+
+// ── Init ───────────────────────────────────────────
+render(); tick();
+
+if (!meds.length) {
+  meds.push({ id:1, name:'فيتامين د', time:'17:00', dose:'حبة واحدة', color:'#ffd166', days:[0,1,2,3,4,5,6] });
+  save(); render();
+}
+</script>
+</body>
+</html>
